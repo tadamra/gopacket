@@ -16,7 +16,7 @@ const (
 )
 
 // paddedAVPFormates are AVP formates which could have a padding with zeros after them
-var paddedAVPFormates = [...]string{"DiameterIdentity", "OctatString", "IPAddress", "UTF8String"}
+var paddedAVPFormates = [...]string{"DiameterIdentity", "OctetString", "IPAddress", "UTF8String"}
 
 // AVP contains dieferent parts of the diameter AVP defined in RFC 6733 section 4
 type AVP struct {
