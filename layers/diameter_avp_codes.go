@@ -1709,3 +1709,12 @@ var vendorsAvps = map[uint32]map[uint32]avpType{
 		123: avpType{"TMO-L7-Charging-Rule-Remove", "Grouped"},
 	},
 }
+
+var avpAttributeEnumerations = map[uint32]map[uint32]string{
+	480: { // Accounting-Record-Type
+		1: "EVENT_RECORD",
+		2: "START_RECORD",
+		3: "INTERIM_RECORD",
+		4: "STOP_RECORD",
+	},
+}

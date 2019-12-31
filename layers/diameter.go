@@ -72,7 +72,7 @@ func (a *AVP) setAttribute() {
 
 func (a *AVP) setDecoder() {
 	if a.AttributeFormat != "" {
-		a.decoder = getAVPFormatDecoder(a.AttributeFormat)
+		a.decoder = getAVPFormatDecoder(a.AttributeFormat, a.AttributeCode)
 	}
 }
 

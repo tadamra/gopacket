@@ -47,12 +47,20 @@ type diameterIPAddress struct {
 	decodedData string
 }
 
+type diameterEnumerated struct {
+	attributeCode uint32
+	decodedData   uint32
+}
+
 func (d diameterIPAddress) getDecodedData() string   { return d.decodedData }
 func (d diameterOctetString) getDecodedData() string { return d.decodedData }
 func (d diameterInteger32) getDecodedData() string   { return strconv.Itoa(int(d.decodedData)) }
 func (d diameterInteger64) getDecodedData() string   { return strconv.Itoa(int(d.decodedData)) }
 func (d diameterFloat32) getDecodedData() string     { return fmt.Sprintf("%f", d.decodedData) }
 func (d diameterFloat64) getDecodedData() string     { return fmt.Sprintf("%f", d.decodedData) }
+func (d diameterEnumerated) getDecodedData() string {
+	return avpAttributeEnumerations[d.attributeCode][d.decodedData]
+}
 
 func (d diameterUnsigned32) getDecodedData() string {
 	return strconv.FormatUint(uint64(d.decodedData), 10)
@@ -154,7 +162,18 @@ func (d *diameterIPAddress) decode(data []byte) error {
 	return nil
 }
 
-func getAVPFormatDecoder(avpFormat string) avpDecoder {
+func (d *diameterEnumerated) decode(data []byte) error {
+
+	if len(data) != 4 {
+		return errors.New("not enough data to decode Enumerated (Unsigned Interger32)")
+	}
+
+	d.decodedData = binary.BigEndian.Uint32(data)
+
+	return nil
+}
+
+func getAVPFormatDecoder(avpFormat string, attributeCode uint32) avpDecoder {
 	switch avpFormat {
 	case "OctetString":
 		return &diameterOctetString{}
@@ -180,8 +199,13 @@ func getAVPFormatDecoder(avpFormat string) avpDecoder {
 		return &diameterUnsigned32{}
 	case "VendorId":
 		return &diameterUnsigned64{}
+	case "Enumerated":
+		// TODO add vendor code
+		// parse value as Integer32, map value per attributeCode
+		return &diameterEnumerated{attributeCode: attributeCode}
 	default:
 		// TODO: add other AVP Formats covered in RFC 6733
+		// Time, Enumerated, Grouped
 		return nil
 	}
 }
