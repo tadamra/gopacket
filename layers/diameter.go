@@ -39,12 +39,14 @@ type AVP struct {
 
 	// Used to decode the specific format of the AVP
 	decoder avpDecoder
+
+	Grouped	[]*AVP
 }
 
 func (a *AVP) setVendor(data []byte) {
 	a.HeaderLen = avpHeaderLenWithVendor
 
-	if len(data) == 3 {
+	if len(data) == 4 { // 3 ?????
 		a.VendorCode = binary.BigEndian.Uint32(data)
 		VendorDetails, ok := diameterVendors[a.VendorCode]
 		if ok {
@@ -160,6 +162,22 @@ func decodeAVP(data []byte) (*AVP, error) {
 
 	avp.decodeValue(avpChunk[avp.HeaderLen:])
 	avp.setPadding()
+
+	// if group, iterate through
+	if avp.AttributeFormat=="Grouped" {
+		avp.Grouped = make([]*AVP, 0)
+		data = avp.Value
+		i := 0
+		for i < len(data) {
+			avp2, err := decodeAVP(data[i:])
+			if err != nil {
+				// TODO
+				return avp, err
+			}
+			avp.Grouped = append(avp.Grouped, avp2)
+			i += int(avp2.Len + avp2.Padding)
+		}
+	}
 
 	avpValueLength := avp.Len - uint32(avp.HeaderLen)
 	if len(avp.Value) < int(avpValueLength) {
