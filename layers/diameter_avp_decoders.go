@@ -206,12 +206,11 @@ func getAVPFormatDecoder(avpFormat string, attributeCode uint32) avpDecoder {
 	case "VendorId":
 		return &diameterUnsigned64{}
 	case "Enumerated":
-		// TODO add vendor code
-		// parse value as Integer32, map value per attributeCode
+		// parse value as Unsigned32, map value per attributeCode
 		return &diameterEnumerated{attributeCode: attributeCode}
 	case "Time":
 		// RFC6733 specifies Time as octetstring, but with length of 4 and uint32 defined as having network
-		// byte order (big endian), it is equivalent to uint32. TODO: ntp extension for times > 2036
+		// byte order (big endian), it is equivalent to uint32. TODO: ntp extension for times > year 2036
 		return &diameterUnsigned32{}
 	case "Grouped":
 		return &diameterOctetString{}
