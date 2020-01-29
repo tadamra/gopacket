@@ -46,7 +46,7 @@ type AVP struct {
 func (a *AVP) setVendor(data []byte) {
 	a.HeaderLen = avpHeaderLenWithVendor
 
-	if len(data) == 4 { // 3 ?????
+	if len(data) == 4 {
 		a.VendorCode = binary.BigEndian.Uint32(data)
 		VendorDetails, ok := diameterVendors[a.VendorCode]
 		if ok {
@@ -56,7 +56,7 @@ func (a *AVP) setVendor(data []byte) {
 	}
 }
 
-func (a *AVP) setAttribute() {
+func (a *AVP) setAttribute() error {
 	var ok bool
 	var avpDetails avpType
 
@@ -69,16 +69,23 @@ func (a *AVP) setAttribute() {
 	if ok {
 		a.AttributeName = avpDetails.name
 		a.AttributeFormat = avpDetails.format
+		return nil
 	}
+	return fmt.Errorf("could not find details for AVP attribute code %d (vendor %d)", a.AttributeCode, a.VendorCode)
 }
 
-func (a *AVP) setDecoder() {
+func (a *AVP) setDecoder() error {
 	if a.AttributeFormat != "" {
 		a.decoder = getAVPFormatDecoder(a.AttributeFormat, a.AttributeCode)
 	}
+	if a.decoder == nil {
+		return fmt.Errorf("could not decode avp, format type '%s' is not yet supported", a.AttributeFormat)
+	}
+	return nil
 }
 
 func (a *AVP) decodeAVPHeader(data []byte) error {
+	var err error
 	avpVendorIDExists := a.Flags&vendorBit == vendorBit
 
 	if avpVendorIDExists {
@@ -87,8 +94,15 @@ func (a *AVP) decodeAVPHeader(data []byte) error {
 		a.HeaderLen = 8
 	}
 
-	a.setAttribute()
-	a.setDecoder()
+	err = a.setAttribute()
+	if err != nil {
+		return err
+	}
+
+	err = a.setDecoder()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -154,10 +168,10 @@ func decodeAVP(data []byte) (*AVP, error) {
 	}
 
 	avpChunk := data[:avp.Len]
-	avp.decodeAVPHeader(avpChunk)
+	err := avp.decodeAVPHeader(avpChunk)
 
-	if avp.decoder == nil {
-		return avp, fmt.Errorf("Could not decode avp, formate type %s is not yet supported", avp.AttributeFormat)
+	if err != nil {
+		return avp, err
 	}
 
 	avp.decodeValue(avpChunk[avp.HeaderLen:])
@@ -171,7 +185,6 @@ func decodeAVP(data []byte) (*AVP, error) {
 		for i < len(data) {
 			avp2, err := decodeAVP(data[i:])
 			if err != nil {
-				// TODO
 				return avp, err
 			}
 			avp.Grouped = append(avp.Grouped, avp2)

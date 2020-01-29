@@ -1,6 +1,7 @@
 package layers
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/google/gopacket"
@@ -75,6 +76,13 @@ var testPacketDiameterAVPs = []byte{
 	0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2B, 0x00, 0x00, 0x01, 0xE0, 0x40, 0x00,
 	0x00, 0x0C, 0x00, 0x00, 0x00, 0x02,
 }
+
+var testPacketDiameterDecoderError = []byte{
+	0x01, 0x00, 0x00, 0x24, 0x00, 0x00, 0x01, 0x10, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x56, 0x00, 0x00, 0x00, 0x0D, 0x62, 0x6C, 0x61, 0x68,
+	0x35, 0x00, 0x00, 0x00,
+}
+
 
 func TestPacketDiameterRequest(t *testing.T) {
 	packet := gopacket.NewPacket(testPacketDiameterRequest, LinkTypeEthernet, gopacket.DecodeStreamsAsDatagrams)
@@ -221,6 +229,33 @@ func TestPacketDiameterAVPs(t *testing.T) {
 		if avp.DecodedValue != "START_RECORD" {
 			t.Errorf("Accounting-Record-Type not decoded properly from packet; expected START_RECORD, got %s", avp.DecodedValue)
 		}
+	}
+}
+
+
+func TestPacketDiameterErrors(t *testing.T) {
+
+	// test unsupported decoder error
+	packet := gopacket.NewPacket(testPacketDiameterDecoderError, LayerTypeDiameter, gopacket.Default)
+	if packet.ErrorLayer() == nil {
+		t.Errorf("expecting to fail on decoding IPFilterRule AVP format ... remove this test when implemented")
+		return
+	}
+	if !strings.Contains(packet.ErrorLayer().Error().Error(), "not yet supported") {
+		t.Errorf("got an error but not the one expected!")
+	}
+
+	// rewrite packet to test unknown AVP error
+	testPacketDiameterDecoderError[22] = 0x02
+	testPacketDiameterDecoderError[23] = 0xCD
+
+	packet = gopacket.NewPacket(testPacketDiameterDecoderError, LayerTypeDiameter, gopacket.Default)
+	if packet.ErrorLayer() == nil {
+		t.Errorf("expecting to fail on decoding unknown AVP, but no error encountered!")
+		return
+	}
+	if !strings.Contains(packet.ErrorLayer().Error().Error(), "could not find details for AVP attribute code 717") {
+		t.Errorf("got an error but not the one expected!")
 	}
 
 }
