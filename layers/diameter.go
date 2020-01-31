@@ -40,7 +40,7 @@ type AVP struct {
 	// Used to decode the specific format of the AVP
 	decoder avpDecoder
 
-	Grouped	[]*AVP
+	Grouped []*AVP
 }
 
 func (a *AVP) setVendor(data []byte) {
@@ -178,7 +178,7 @@ func decodeAVP(data []byte) (*AVP, error) {
 	avp.setPadding()
 
 	// if group, iterate through
-	if avp.AttributeFormat=="Grouped" {
+	if avp.AttributeFormat == "Grouped" {
 		avp.Grouped = make([]*AVP, 0)
 		data = avp.Value
 		i := 0

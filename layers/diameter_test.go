@@ -83,7 +83,6 @@ var testPacketDiameterDecoderError = []byte{
 	0x35, 0x00, 0x00, 0x00,
 }
 
-
 func TestPacketDiameterRequest(t *testing.T) {
 	packet := gopacket.NewPacket(testPacketDiameterRequest, LinkTypeEthernet, gopacket.DecodeStreamsAsDatagrams)
 	if packet.ErrorLayer() != nil {
@@ -231,7 +230,6 @@ func TestPacketDiameterAVPs(t *testing.T) {
 		}
 	}
 }
-
 
 func TestPacketDiameterErrors(t *testing.T) {
 
