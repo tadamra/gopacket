@@ -99,6 +99,10 @@ func TestPacketDiameterRequest(t *testing.T) {
 			t.Errorf("Failed to decode Diameter Flags expecting 8 got %d", d.Flags)
 		}
 
+		if !d.IsRequest() {
+			t.Error("expecting request, not an answer")
+		}
+
 		if d.MessageLen != 200 {
 			t.Errorf("Failed to decode Diameter Message Length expecting 200 got %d", d.MessageLen)
 		}
@@ -140,6 +144,10 @@ func TestPacketDiameterAnswer(t *testing.T) {
 
 		if d.Flags != 0 {
 			t.Errorf("Failed to decode Diameter Flags expecting 0 got %d", d.Flags)
+		}
+
+		if d.IsRequest() || !d.IsAnswer() {
+			t.Error("expecting answer, not a request")
 		}
 
 		if d.MessageLen != 204 {
@@ -203,9 +211,11 @@ func TestPacketDiameterAVPs(t *testing.T) {
 		}
 
 		// format Time, decoded as diameterUnsigned32
-		avp = kvps["Event-Timestamp"]
-		if avp.DecodedValue != "3789245840" {
-			t.Errorf("Event-Timestamp not decoded properly from packet; expected 3789157097, got %s", avp.DecodedValue)
+		avp = kvps["Event-Timestamp"] // expecting 2020-01-29 00:17:20 UTC for this sample
+		evtTime := avp.decoder.(*diameterTime).decodedData
+		evtTime = evtTime.UTC()
+		if evtTime.Year() != 2020 || evtTime.Month() != 1 || evtTime.Day() != 29 {
+			t.Errorf("Event-Timestamp not decoded properly from packet; expected 2020-01-29, got %s", avp.DecodedValue)
 		}
 
 		// format Grouped

@@ -43,6 +43,16 @@ type AVP struct {
 	Grouped []*AVP
 }
 
+func (a *AVP) IsVendorSpecific() bool {
+	return a.Flags&128 != 0
+}
+func (a *AVP) IsMandatory() bool {
+	return a.Flags&64 != 0
+}
+func (a *AVP) IsProtected() bool {
+	return a.Flags&32 != 0
+}
+
 func (a *AVP) setVendor(data []byte) {
 	a.HeaderLen = avpHeaderLenWithVendor
 
@@ -154,6 +164,19 @@ func (d *Diameter) LayerType() gopacket.LayerType { return LayerTypeDiameter }
 // Payload for Diameter is nil; no other layers encapsulated by it
 func (d *Diameter) Payload() []byte {
 	return nil
+}
+
+func (d *Diameter) IsRequest() bool {
+	return d.Flags&128 != 0
+}
+func (d *Diameter) IsAnswer() bool {
+	return !d.IsRequest()
+}
+func (d *Diameter) IsProxyable() bool {
+	return d.Flags&64 != 0
+}
+func (d *Diameter) IsError() bool {
+	return d.Flags&32 != 0
 }
 
 func decodeAVP(data []byte) (*AVP, error) {
