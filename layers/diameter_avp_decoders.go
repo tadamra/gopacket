@@ -51,9 +51,8 @@ type diameterEnumerated struct { // vendor code?
 	decodedData   uint32
 }
 
-
-func (d diameterIPAddress) getDecodedData() string   {
-	if len(d.decodedData)==4 {
+func (d diameterIPAddress) getDecodedData() string {
+	if len(d.decodedData) == 4 {
 		return fmt.Sprintf("%d.%d.%d.%d", d.decodedData[0], d.decodedData[1], d.decodedData[2], d.decodedData[3])
 	} // TODO ipv6
 	return d.decodedData
@@ -73,7 +72,6 @@ func (d diameterUnsigned64) getDecodedData() string {
 func (d diameterEnumerated) getDecodedData() string {
 	return avpAttributeEnumerations[d.attributeCode][d.decodedData]
 }
-
 
 func (d *diameterOctetString) decode(data []byte) error {
 	dataLen := len(data)
