@@ -210,9 +210,9 @@ func TestPacketDiameterAVPs(t *testing.T) {
 			t.Errorf("Session-Id not decoded properly from packet")
 		}
 
-		// format Time, decoded as diameterUnsigned32
+		// format Time, decoded as DiameterUnsigned32
 		avp = kvps["Event-Timestamp"] // expecting 2020-01-29 00:17:20 UTC for this sample
-		evtTime := avp.decoder.(*diameterTime).decodedData
+		evtTime := avp.decoder.(*DiameterTime).decodedData
 		evtTime = evtTime.UTC()
 		if evtTime.Year() != 2020 || evtTime.Month() != 1 || evtTime.Day() != 29 {
 			t.Errorf("Event-Timestamp not decoded properly from packet; expected 2020-01-29, got %s", avp.DecodedValue)

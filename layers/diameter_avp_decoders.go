@@ -12,76 +12,75 @@ import (
 
 type avpDecoder interface {
 	decode([]byte) error
-	getDecodedData() string
+	String() string
 }
 
-type diameterOctetString struct {
+type DiameterOctetString struct {
 	decodedData string
 }
 
-type diameterInteger32 struct {
+type DiameterInteger32 struct {
 	decodedData int32
 }
 
-type diameterInteger64 struct {
+type DiameterInteger64 struct {
 	decodedData int64
 }
 
-type diameterUnsigned32 struct {
+type DiameterUnsigned32 struct {
 	decodedData uint32
 }
 
-type diameterUnsigned64 struct {
+type DiameterUnsigned64 struct {
 	decodedData uint64
 }
 
-type diameterFloat32 struct {
+type DiameterFloat32 struct {
 	decodedData float32
 }
 
-type diameterFloat64 struct {
+type DiameterFloat64 struct {
 	decodedData float64
 }
 
-type diameterIPAddress struct {
-	decodedData string
+type DiameterIPAddress struct {
+	decodedData net.IP
 }
 
-type diameterEnumerated struct { // vendor code?
+type DiameterTime struct {
+	decodedData time.Time
+}
+
+type DiameterEnumerated struct { // vendor code?
 	attributeCode uint32
 	decodedData   uint32
 }
 
-type diameterTime struct {
-	decodedData time.Time
-}
+func (d DiameterOctetString) Get() string { return d.decodedData }
+func (d DiameterInteger32) Get() int32    { return d.decodedData }
+func (d DiameterInteger64) Get() int64    { return d.decodedData }
+func (d DiameterFloat32) Get() float32    { return d.decodedData }
+func (d DiameterFloat64) Get() float64    { return d.decodedData }
+func (d DiameterUnsigned32) Get() uint32  { return d.decodedData }
+func (d DiameterUnsigned64) Get() uint64  { return d.decodedData }
+func (d DiameterIPAddress) Get() net.IP   { return d.decodedData }
+func (d DiameterTime) Get() time.Time     { return d.decodedData }
+func (d DiameterEnumerated) Get() uint32  { return d.decodedData }
 
-func (d diameterIPAddress) getDecodedData() string {
-	if len(d.decodedData) == 4 {
-		return fmt.Sprintf("%d.%d.%d.%d", d.decodedData[0], d.decodedData[1], d.decodedData[2], d.decodedData[3])
-	} // TODO ipv6
-	return d.decodedData
-}
-func (d diameterOctetString) getDecodedData() string { return d.decodedData }
-func (d diameterInteger32) getDecodedData() string   { return strconv.Itoa(int(d.decodedData)) }
-func (d diameterInteger64) getDecodedData() string   { return strconv.Itoa(int(d.decodedData)) }
-func (d diameterFloat32) getDecodedData() string     { return fmt.Sprintf("%f", d.decodedData) }
-func (d diameterFloat64) getDecodedData() string     { return fmt.Sprintf("%f", d.decodedData) }
-
-func (d diameterUnsigned32) getDecodedData() string {
-	return strconv.FormatUint(uint64(d.decodedData), 10)
-}
-func (d diameterUnsigned64) getDecodedData() string {
-	return strconv.FormatUint(uint64(d.decodedData), 10)
-}
-func (d diameterEnumerated) getDecodedData() string {
+func (d DiameterOctetString) String() string { return d.decodedData }
+func (d DiameterInteger32) String() string   { return strconv.Itoa(int(d.decodedData)) }
+func (d DiameterInteger64) String() string   { return strconv.Itoa(int(d.decodedData)) }
+func (d DiameterFloat32) String() string     { return fmt.Sprintf("%f", d.decodedData) }
+func (d DiameterFloat64) String() string     { return fmt.Sprintf("%f", d.decodedData) }
+func (d DiameterUnsigned32) String() string  { return strconv.FormatUint(uint64(d.decodedData), 10) }
+func (d DiameterUnsigned64) String() string  { return strconv.FormatUint(uint64(d.decodedData), 10) }
+func (d DiameterIPAddress) String() string   { return d.decodedData.String() }
+func (d DiameterTime) String() string        { return d.decodedData.String() }
+func (d DiameterEnumerated) String() string {
 	return avpAttributeEnumerations[d.attributeCode][d.decodedData]
 }
-func (d diameterTime) getDecodedData() string {
-	return d.decodedData.String()
-}
 
-func (d *diameterOctetString) decode(data []byte) error {
+func (d *DiameterOctetString) decode(data []byte) error {
 	dataLen := len(data)
 
 	if dataLen == 0 {
@@ -93,29 +92,7 @@ func (d *diameterOctetString) decode(data []byte) error {
 	return nil
 }
 
-func (d *diameterUnsigned32) decode(data []byte) error {
-
-	if len(data) != 4 {
-		return errors.New("not enough data to decode Unsigned Integer32")
-	}
-
-	d.decodedData = binary.BigEndian.Uint32(data)
-
-	return nil
-}
-
-func (d *diameterUnsigned64) decode(data []byte) error {
-
-	if len(data) != 8 {
-		return errors.New("not enough data to decode Unsigned Integer64")
-	}
-
-	d.decodedData = binary.BigEndian.Uint64(data)
-
-	return nil
-}
-
-func (d *diameterInteger32) decode(data []byte) error {
+func (d *DiameterInteger32) decode(data []byte) error {
 
 	if len(data) != 4 {
 		return errors.New("not enough data to decode Unsigned Integer32")
@@ -126,7 +103,7 @@ func (d *diameterInteger32) decode(data []byte) error {
 	return nil
 }
 
-func (d *diameterInteger64) decode(data []byte) error {
+func (d *DiameterInteger64) decode(data []byte) error {
 
 	if len(data) != 8 {
 		return errors.New("not enough data to decode Unsigned Integer64")
@@ -137,7 +114,7 @@ func (d *diameterInteger64) decode(data []byte) error {
 	return nil
 }
 
-func (d *diameterFloat32) decode(data []byte) error {
+func (d *DiameterFloat32) decode(data []byte) error {
 
 	if len(data) != 4 {
 		return errors.New("not enough data to decode Unsigned Integer32")
@@ -148,7 +125,7 @@ func (d *diameterFloat32) decode(data []byte) error {
 	return nil
 }
 
-func (d *diameterFloat64) decode(data []byte) error {
+func (d *DiameterFloat64) decode(data []byte) error {
 
 	if len(data) != 8 {
 		return errors.New("not enough data to decode Unsigned Integer64")
@@ -159,7 +136,29 @@ func (d *diameterFloat64) decode(data []byte) error {
 	return nil
 }
 
-func (d *diameterIPAddress) decode(data []byte) error {
+func (d *DiameterUnsigned32) decode(data []byte) error {
+
+	if len(data) != 4 {
+		return errors.New("not enough data to decode Unsigned Integer32")
+	}
+
+	d.decodedData = binary.BigEndian.Uint32(data)
+
+	return nil
+}
+
+func (d *DiameterUnsigned64) decode(data []byte) error {
+
+	if len(data) != 8 {
+		return errors.New("not enough data to decode Unsigned Integer64")
+	}
+
+	d.decodedData = binary.BigEndian.Uint64(data)
+
+	return nil
+}
+
+func (d *DiameterIPAddress) decode(data []byte) error {
 
 	var ip net.IP
 	// IPv4 is 4 bytes, IPv6 is 16 bytes. add 2 bytes each which is the chunk representing the type of the address (first two bits of data)
@@ -169,23 +168,12 @@ func (d *diameterIPAddress) decode(data []byte) error {
 
 	// byte 0 and 1 will representing the type of the address which is either v4 or v6 in the IP addresses case
 	ip = data[2:]
-	d.decodedData = ip.String()
+	d.decodedData = ip
 
 	return nil
 }
 
-func (d *diameterEnumerated) decode(data []byte) error {
-
-	if len(data) != 4 {
-		return errors.New("not enough data to decode Enumerated (Unsigned Integer32)")
-	}
-
-	d.decodedData = binary.BigEndian.Uint32(data)
-
-	return nil
-}
-
-func (d *diameterTime) decode(data []byte) error {
+func (d *DiameterTime) decode(data []byte) error {
 
 	// RFC6733 specifies Time as octetstring, but with length of 4 and uint32 defined as having network
 	// byte order (big endian), it is equivalent to uint32.
@@ -205,39 +193,50 @@ func (d *diameterTime) decode(data []byte) error {
 	return nil
 }
 
+func (d *DiameterEnumerated) decode(data []byte) error {
+
+	if len(data) != 4 {
+		return errors.New("not enough data to decode Enumerated (Unsigned Integer32)")
+	}
+
+	d.decodedData = binary.BigEndian.Uint32(data)
+
+	return nil
+}
+
 func getAVPFormatDecoder(avpFormat string, attributeCode uint32) avpDecoder {
 	switch avpFormat {
 	case "OctetString":
-		return &diameterOctetString{}
+		return &DiameterOctetString{}
 	case "Integer32":
-		return &diameterInteger32{}
+		return &DiameterInteger32{}
 	case "Integer64":
-		return &diameterInteger64{}
+		return &DiameterInteger64{}
 	case "Unsigned32":
-		return &diameterUnsigned32{}
+		return &DiameterUnsigned32{}
 	case "Unsigned64":
-		return &diameterUnsigned64{}
+		return &DiameterUnsigned64{}
 	case "Float32":
-		return &diameterFloat32{}
+		return &DiameterFloat32{}
 	case "Float64":
-		return &diameterFloat64{}
+		return &DiameterFloat64{}
 	case "DiameterIdentity":
-		return &diameterOctetString{}
+		return &DiameterOctetString{}
 	case "IPAddress":
-		return &diameterIPAddress{}
+		return &DiameterIPAddress{}
 	case "UTF8String":
-		return &diameterOctetString{}
+		return &DiameterOctetString{}
 	case "AppId":
-		return &diameterUnsigned32{}
+		return &DiameterUnsigned32{}
 	case "VendorId":
-		return &diameterUnsigned64{}
+		return &DiameterUnsigned64{}
 	case "Enumerated":
 		// parse value as Unsigned32, map value per attributeCode
-		return &diameterEnumerated{attributeCode: attributeCode}
+		return &DiameterEnumerated{attributeCode: attributeCode}
 	case "Time":
-		return &diameterTime{}
+		return &DiameterTime{}
 	case "Grouped":
-		return &diameterOctetString{}
+		return &DiameterOctetString{}
 	default:
 		// TODO: add other AVP Formats covered in RFC 6733
 		// IPFilterRule, DiameterURI

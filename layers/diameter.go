@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-
 	"github.com/google/gopacket"
 )
 
@@ -41,6 +40,10 @@ type AVP struct {
 	decoder avpDecoder
 
 	Grouped []*AVP
+}
+
+func (a *AVP) GetDecoder() avpDecoder {
+	return a.decoder
 }
 
 func (a *AVP) IsVendorSpecific() bool {
@@ -120,7 +123,7 @@ func (a *AVP) decodeAVPHeader(data []byte) error {
 func (a *AVP) decodeValue(data []byte) {
 	a.Value = data
 	a.decoder.decode(a.Value)
-	a.DecodedValue = a.decoder.getDecodedData()
+	a.DecodedValue = a.decoder.String()
 }
 
 func (a *AVP) setPadding() {
