@@ -495,7 +495,7 @@ var avpCodes = map[uint32]avpType{
 	447:  avpType{"Value-Digits", "Integer64"},
 	448:  avpType{"Validity-Time", "Unsigned32"},
 	449:  avpType{"Final-Unit-Action", "Enumerated"},
-	450:  avpType{"Subscription-Id-Type", "Unsigned32"},
+	450:  avpType{"Subscription-Id-Type", "Enumerated"},
 	451:  avpType{"Tariff-Time-Change", "Time"},
 	452:  avpType{"Tariff-Change-Usage", "Enumerated"},
 	453:  avpType{"G-S-U-Pool-Identifier", "Unsigned32"},
@@ -1761,6 +1761,18 @@ var avpAttributeEnumerations = map[uint32]map[uint32]string{
 		30: "Reauthentication Failure",
 		31: "Port Reinitialized",
 		32: "Port Administratively Disabled",
+	},
+	450: { // Subscription-Id-Type (rfc4006)
+		0: "END_USER_E164",
+		1: "END_USER_IMSI",
+		2: "END_USER_SIP_URI",
+		3: "END_USER_NAI",
+	},
+	459: { // User-Equipment-Info-Type (rfc4006)
+		0: "IMEISV",
+		1: "MAC",
+		2: "EUI64",
+		3: "MODIFIED_EUI64",
 	},
 	480: { // Accounting-Record-Type
 		1: "EVENT_RECORD",
