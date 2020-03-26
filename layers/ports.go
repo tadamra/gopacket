@@ -70,6 +70,7 @@ var tcpPortLayerType = [65536]gopacket.LayerType{
 	993:  LayerTypeTLS,       // imaps
 	994:  LayerTypeTLS,       // ircs
 	995:  LayerTypeTLS,       // pop3s
+	5060: LayerTypeSIP,       // SIP
 	5061: LayerTypeTLS,       // ips
 }
 
