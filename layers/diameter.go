@@ -44,13 +44,13 @@ type AVP struct {
 }
 
 func (a *AVP) IsVendorSpecific() bool {
-	return a.Flags&128 != 0
+	return a.Flags&uint8(128) != 0
 }
 func (a *AVP) IsMandatory() bool {
-	return a.Flags&64 != 0
+	return a.Flags&uint8(64) != 0
 }
 func (a *AVP) IsProtected() bool {
-	return a.Flags&32 != 0
+	return a.Flags&uint8(32) != 0
 }
 
 func (a *AVP) setVendor(data []byte) {
@@ -167,16 +167,16 @@ func (d *Diameter) Payload() []byte {
 }
 
 func (d *Diameter) IsRequest() bool {
-	return d.Flags&128 != 0
+	return d.Flags&uint8(128) != 0
 }
 func (d *Diameter) IsAnswer() bool {
 	return !d.IsRequest()
 }
 func (d *Diameter) IsProxyable() bool {
-	return d.Flags&64 != 0
+	return d.Flags&uint8(64) != 0
 }
 func (d *Diameter) IsError() bool {
-	return d.Flags&32 != 0
+	return d.Flags&uint8(32) != 0
 }
 
 func decodeAVP(data []byte) (*AVP, error) {
