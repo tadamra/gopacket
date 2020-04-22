@@ -542,7 +542,6 @@ var avpCodes = map[uint32]avpType{
 	501:  avpType{"TMOD-2", "Grouped"},
 	502:  avpType{"Bandwidth", "Float32"},
 	503:  avpType{"PHB-Class", "Unsigned32"},
-	505:  avpType{"AF-Charging-Identifier", "OctetString"},
 	506:  avpType{"Mobile-Node-Identifier", "UTF8String"},
 	508:  avpType{"Flow-Grouping", "Grouped"},
 	510:  avpType{"Flows", "Grouped"},
