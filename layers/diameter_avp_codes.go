@@ -1481,6 +1481,7 @@ var vendorsAvps = map[uint32]map[uint32]avpType{
 		298: avpType{"ETSI-Experimental-Result-Code", "Unsigned32"},
 		299: avpType{"Not defined in .xml", "OctetString"},
 		308: avpType{"Maximum-Allowed-Bandwidth-UL", "Unsigned32"},
+		311: avpType{"Transport‑Class", "Unsigned32"},
 		320: avpType{"Not defined in .xml", "OctetString"},
 		321: avpType{"Not defined in .xml", "OctetString"},
 		322: avpType{"Not defined in .xml", "OctetString"},
